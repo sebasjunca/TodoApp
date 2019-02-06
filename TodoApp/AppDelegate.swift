@@ -2,7 +2,7 @@
 //  AppDelegate.swift
 //  TodoApp
 //
-//  Created by Kathleen Acosta on 1/14/19.
+//  Created by Sebastian Junca on 1/14/19.
 //  Copyright © 2019 Zenze. All rights reserved.
 //
 

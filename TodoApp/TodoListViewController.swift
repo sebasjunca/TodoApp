@@ -10,10 +10,19 @@ import UIKit
 
 class TodoListViewController: UITableViewController {
     
-    var itemArray = ["Find Mike", "Buy eggs", "Destroy Demogorgon"]
+    var itemArray = ["Find Mike", "Buy eggs", "Destroy Demogorgon", "Try new Swift 5"]
+    
+    let defaults = UserDefaults.standard // interface to the users defaults database where you store key value pairs persistently used across launches of your app.
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        
+        // This is used to show the data stored into the user defaults plist database
+        if let itemArray = defaults.array(forKey: "ToDoListArray") as? [String] {
+            itemArray = items
+        }
+        
         // Do any additional setup after loading the view, typically from a nib.
     
     }
@@ -60,6 +69,8 @@ class TodoListViewController: UITableViewController {
             
             self.itemArray.append(textField.text!)
             
+            self.defaults.set(self.itemArray, forKey: "ToDoListArray") // Stores the item added to the user default database to make it persistent.
+            
             self.tableView.reloadData()
         }
     
@@ -78,4 +89,3 @@ class TodoListViewController: UITableViewController {
     }
     
 }
-
