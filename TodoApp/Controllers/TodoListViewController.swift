@@ -13,6 +13,12 @@ class TodoListViewController: UITableViewController {
     
     var itemArray = [Item]()
     
+    var selectedCategory: Category? {
+        didSet {
+            loadItems()
+        }
+    }
+    
     let itemArrayKey = "ToDoListArray"
 
     let context = (UIApplication.shared.delegate as! AppDelegate).persistentContainer.viewContext
@@ -24,9 +30,6 @@ class TodoListViewController: UITableViewController {
         print(FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)) //Shows where is data stored for our app
 
         // searchBar.delegate = self
-        
-        
-        loadItems()
         
         // This is used to show the data stored into the user defaults plist database
 
@@ -81,6 +84,7 @@ class TodoListViewController: UITableViewController {
             let newItem = Item(context: self.context)
             newItem.title = textField.text!
             newItem.done = false
+            newItem.parentCategory = self.selectedCategory // links the parentCategory relation in coreData to the selectedCategory
             
             self.itemArray.append(newItem)
             
@@ -118,8 +122,16 @@ class TodoListViewController: UITableViewController {
     
     // Load items from the core data database
     
-    func loadItems(with request: NSFetchRequest<Item> = Item.fetchRequest()) {
+    func loadItems(with request: NSFetchRequest<Item> = Item.fetchRequest(), predicate: NSPredicate? = nil) {
        
+        let categoryPredicate = NSPredicate(format: "parentCategory.name MATCHES %@", selectedCategory!.name!)
+
+        if let additionalPredicate = predicate {
+            request.predicate = NSCompoundPredicate(andPredicateWithSubpredicates: [categoryPredicate, additionalPredicate])
+        } else {
+            request.predicate = categoryPredicate
+        }
+        
         do {
             itemArray = try  context.fetch(request)
         } catch {
@@ -140,11 +152,11 @@ extension TodoListViewController: UISearchBarDelegate {
      
         // for all the items in the Array search for the title that CONTAINS %@ this text, check NSPredicate Cheat sheet
         
-        request.predicate = NSPredicate(format: "title CONTAINS %@", searchBar.text!)
+        let predicate = NSPredicate(format: "title CONTAINS %@", searchBar.text!)
 
         request.sortDescriptors = [NSSortDescriptor(key: "title", ascending: true)]
         
-        loadItems(with: request) // triggers loadItems func with the parameter of let request
+        loadItems(with: request, predicate: predicate) // triggers loadItems func with the parameter of let request
         
     }
     
